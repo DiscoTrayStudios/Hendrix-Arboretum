@@ -301,4 +301,14 @@ class ApplicationState extends ChangeNotifier {
     }
     return topTenTrees;
   }
+  Future<String> getImage(int id) async {
+  var collection = FirebaseFirestore.instance.collection('treeImages');
+  var docSnapshot = await collection.doc('$id').get();
+  if (docSnapshot.exists) {
+  Map<String, dynamic>? data = docSnapshot.data();
+  var value = data?['image'][0];
+  return (value.toString()); 
+  } 
+  return " ";    
+}
 }
