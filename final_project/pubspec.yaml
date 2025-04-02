@@ -55,6 +55,7 @@ dependencies:
   safe_text: ^1.0.7
   geolocator: ^13.0.2
   flutter_map_marker_cluster: ^1.4.0
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:

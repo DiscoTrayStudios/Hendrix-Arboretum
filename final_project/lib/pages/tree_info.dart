@@ -14,6 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:safe_text/safe_text.dart';
 import 'package:final_project/objects/comment.dart';
 import 'package:final_project/widgets/comment_widgets.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class TreeInfo extends StatefulWidget {
   TreeInfo({super.key, required this.treeid, commonname});
@@ -175,7 +176,9 @@ class _TreeInfoState extends State<TreeInfo> {
                       future: futureTree,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          return Text(snapshot.data!.scientificName,
+                          return AutoSizeText(snapshot.data!.scientificName,
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
                               style: TextStyle(color: Colors.white));
                         } else if (snapshot.hasError) {
                           return Text('${snapshot.error}');
