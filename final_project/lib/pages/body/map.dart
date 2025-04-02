@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import "package:flutter_map/flutter_map.dart";
 import "package:geolocator/geolocator.dart";
 import "package:latlong2/latlong.dart";
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 
 import "/api/specialty.dart";
 import "/api/tree.dart";
@@ -26,6 +27,7 @@ class Map extends StatefulWidget {
 class _MapState extends State<Map> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   MapController mapController = MapController();
+  LatLng previousLocation = LatLng(35.100232,  -92.440290);
 
   List<Specialty> specialtyList = [];
   Specialty? selectedSpecialty;
@@ -53,7 +55,8 @@ class _MapState extends State<Map> {
                     options: const MapOptions(
                         keepAlive: true,
                         initialCenter: LatLng(35.100232, -92.440290),
-                        initialZoom: 16),
+                        initialZoom: 16,
+                        initialRotation: 0),
                     children: [
                       TileLayer(
                           // https://docs.fleaflet.dev/
@@ -67,9 +70,29 @@ class _MapState extends State<Map> {
                       if (searchResult case SearchResult res)
                         Stack(
                           children: [
-                            MarkerLayer(
-                              markers: createMarkers(res.trees),
-                            ),
+                      MarkerClusterLayerWidget(
+                        options: MarkerClusterLayerOptions(
+                          maxClusterRadius: 45,
+                          size: const Size(40, 40),
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(50),
+                          maxZoom: 15,        
+                          markers: createMarkers(res.trees),
+                          builder: (context, markers) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: const Color.fromARGB(255, 202, 81, 39)),
+                              child: Center(
+                                child: Text(
+                                  markers.length.toString(),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                           ],
                         ),
                     ],
@@ -101,10 +124,18 @@ class _MapState extends State<Map> {
                                         setState(() {
                                           selectedSpecialty = specialty;
                                         });
-                                        specialtyTrees(specialty!);
+                                        if (specialty != null) {
+                                          specialtyTrees(specialty);
+                                        } else {
+                                          clearMarkers();
+                                        }
                                       },
                                       onSearch: (query) {
-                                        search(query);
+                                         if (query.isEmpty) {
+                                          clearMarkers();
+                                        } else {
+                                          search(query);
+                                        }
                                       },
                                     ),
                                   ),
@@ -151,9 +182,30 @@ class _MapState extends State<Map> {
                           ),
                         ),
                       ),
+                      Positioned(
+                    bottom: 30.0,
+                    right: 86.0, // Position to the left of the location button
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle, 
+                        border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0), 
+                        color: const Color.fromARGB(255, 199, 96, 22), 
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2), 
+                            blurRadius: 5.0, 
+                            offset: const Offset(0, 3), 
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        onPressed: resetOrientation,
+                        icon: const Icon(Icons.undo, color: Colors.white, size: 40),
+                      ),
+                    ),
+                  ),
                     ],
                   )
-
               ],
             ),
           ),
@@ -161,6 +213,11 @@ class _MapState extends State<Map> {
       );
     });
   }
+    void clearMarkers() {
+    setState(() {
+      searchResult = null;
+    });
+    }
 
   Widget buildStyledContainer(Widget child) {
     return Padding(
@@ -207,6 +264,10 @@ class _MapState extends State<Map> {
   }
 
   Future<void> search(String text) async {
+    if (text.isEmpty) {
+      clearMarkers();
+      return;
+    }
     try {
       setState(() {
         isLoading = true;
@@ -343,9 +404,9 @@ class _MapState extends State<Map> {
         backgroundColor: const Color.fromARGB(255, 0, 103, 79),
       ),
     );
-
     mapController.move(LatLng(trees[0].latitude, trees[0].longitude), zoom);
-  }
+    mapController.rotate(0);
+    previousLocation = LatLng(trees[0].latitude, trees[0].longitude);   }
 
   void noTreesFound() {
     setState(() {
@@ -362,5 +423,9 @@ class _MapState extends State<Map> {
         backgroundColor: const Color.fromARGB(255, 0, 103, 79),
       ),
     );
+  }
+  void resetOrientation(){
+    mapController.rotate(0);
+    mapController.move(previousLocation, 18);
   }
 }

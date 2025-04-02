@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/api/tree.dart';
 import 'package:final_project/app_state.dart';
@@ -34,17 +37,23 @@ class TreeInfo extends StatefulWidget {
 class _TreeInfoState extends State<TreeInfo> {
   late Future<Tree?> futureTree;
   var appState;
+  late Future<String> imageString;
+  late String finalImage= "";
   @override
-  void initState() {
+  void initState(){
     super.initState();
     futureTree = fetchTree(widget.treeid);
     appState = context.read<ApplicationState>();
+   _getImageURL(widget.treeid).then((result){
+    finalImage = result;
+   });
+    
     //widget.cmts = appState.loadComments(widget.treeid);
     //appState.loadComments(widget.treeid);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 175, 225, 175),
       appBar: AppBar(
@@ -76,7 +85,7 @@ class _TreeInfoState extends State<TreeInfo> {
       body: ListView(
         padding: const EdgeInsets.only(left: 30, right: 30, top: 40, bottom: 30),
         children: [
-          FutureBuilder<Tree?>(
+          FutureBuilder(
             future: futureTree,
             builder: (context, snapshot) {
               // NOTE(LeitMoth):
@@ -101,7 +110,7 @@ class _TreeInfoState extends State<TreeInfo> {
                     ),
                   ),
                 );
-              } else if (snapshot.hasError || loadedButImageMissing) {
+              } else if (snapshot.hasError || loadedButImageMissing){
                 return Image.asset('assets/img/stockTree.jpg');
               }
               return Center(
@@ -271,5 +280,9 @@ class _TreeInfoState extends State<TreeInfo> {
     if (!await launchUrl(url)) {
       throw Exception('Could not launch $url');
     }
+  }
+  Future<String> _getImageURL(int id) async{
+    Future<String> imageString = appState.getImage(widget.treeid);
+    return imageString;
   }
 }
