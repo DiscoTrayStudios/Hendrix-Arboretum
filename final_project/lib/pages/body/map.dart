@@ -34,7 +34,7 @@ class _MapState extends State<Map> {
 
   SearchResult? searchResult;
   bool isLoading = false;
-
+  bool locationDisabled = false;
   @override
   void initState() {
     super.initState();
@@ -327,13 +327,20 @@ class _MapState extends State<Map> {
 
       await checkGeoPermissions();
       Position loc = await Geolocator.getCurrentPosition();
-
+      if(locationDisabled){
+        noLocaton();
+      }
       List<Tree> treeList =
           await fetchClosestTrees(loc.latitude, loc.longitude, 5);
 
       populateMap(treeList, zoom: 18);
     } catch (e) {
-      noTreesFound();
+      if (e.toString().contains("Location")){
+        noLocaton();
+      }
+      else{
+        noTreesFound();
+      }
     }
   }
 
@@ -352,13 +359,16 @@ class _MapState extends State<Map> {
   }
 
   Future<void> checkGeoPermissions() async {
+    locationDisabled = false;
     bool serviceEnabled;
     LocationPermission permission;
 
     // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      locationDisabled = true;
       throw Exception('Location services are disabled.');
+
     }
     // Check for location permissions
     permission = await Geolocator.checkPermission();
@@ -369,6 +379,7 @@ class _MapState extends State<Map> {
       }
     }
     if (permission == LocationPermission.deniedForever) {
+      locationDisabled = true;
       throw Exception(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
@@ -417,6 +428,22 @@ class _MapState extends State<Map> {
       SnackBar(
         content: Text(
           'No trees found!',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
+        backgroundColor: const Color.fromARGB(255, 0, 103, 79),
+      ),
+    );
+  }
+  void noLocaton() {
+    setState(() {
+      isLoading = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Could not access your location.',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.labelLarge,
         ),
