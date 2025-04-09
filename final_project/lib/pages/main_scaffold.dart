@@ -33,6 +33,9 @@ class _MainScaffoldState extends State<MainScaffold> {
       "Hendrix Arboretum",
       "About",
     ].elementAtOrNull(pageIndex);
+    final Size size = MediaQuery.sizeOf(context);
+    final double height = size.height;
+    final double width = size.width;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 175, 225, 175),
