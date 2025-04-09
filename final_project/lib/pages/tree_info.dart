@@ -177,8 +177,9 @@ class _TreeInfoState extends State<TreeInfo> {
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return AutoSizeText(snapshot.data!.scientificName,
-                              maxLines: 2,
+                              maxLines: 1,
                               textAlign: TextAlign.center,
+                              minFontSize: 10,
                               style: TextStyle(color: Colors.white));
                         } else if (snapshot.hasError) {
                           return Text('${snapshot.error}');
