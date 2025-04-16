@@ -311,4 +311,57 @@ class ApplicationState extends ChangeNotifier {
   } 
   return " ";    
 }
+Future<String?> getPersonalNote(int treeID) async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return null;
+  
+  final snapshot = await FirebaseFirestore.instance
+    .collection('userNotes')
+    .doc(user.uid)
+    .collection('trees')
+    .doc(treeID.toString())
+    .get();
+    
+  if (snapshot.exists) {
+    final data = snapshot.data();
+    if (data != null && data.containsKey('note')) {
+      return data['note'] as String;
+    }
+  }
+  
+  return null;
+}
+
+Future<void> savePersonalNote(int treeID, String note) async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return;
+  
+  await FirebaseFirestore.instance
+    .collection('userNotes')
+    .doc(user.uid)
+    .collection('trees')
+    .doc(treeID.toString())
+    .set({
+      'note': note,
+      'treeID': treeID,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+    
+  notifyListeners();
+}
+
+// Delete a personal note
+Future<void> deletePersonalNote(int treeID) async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return;
+  
+  await FirebaseFirestore.instance
+    .collection('userNotes')
+    .doc(user.uid)
+    .collection('trees')
+    .doc(treeID.toString())
+    .delete();
+    
+  notifyListeners();
+}
 }
