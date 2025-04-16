@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/api/tree.dart';
 import 'package:final_project/app_state.dart';
+import 'package:final_project/widgets/note_widgets.dart';
 import 'package:final_project/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -274,6 +275,25 @@ class _TreeInfoState extends State<TreeInfo> {
                             'https://plants.ces.ncsu.edu/find_a_plant/common-name/?q=${widget.commonname}'))
                       },
                   child: Text('More Info'))),
+                  Consumer<ApplicationState>(
+  builder: (context, appState, _) => 
+    appState.loggedIn 
+      ? PersonalNoteSection(treeID: widget.treeid)
+      : Container(
+          margin: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color.fromARGB(255, 0, 103, 79), width: 2),
+          ),
+          child: const Text(
+            'Sign in to add personal notes about this tree',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+),
           CommentSection(addComment: (id, comment) => appState.addComment(id, comment), treeID: widget.treeid)
           ],
       ),

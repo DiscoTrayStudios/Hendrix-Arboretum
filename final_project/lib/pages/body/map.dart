@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:audioplayers/audioplayers.dart";
 import "package:final_project/api/by_name.dart";
 import "package:final_project/widgets/widgets.dart";
@@ -76,7 +78,9 @@ class _MapState extends State<Map> {
                           size: const Size(40, 40),
                           alignment: Alignment.center,
                           padding: const EdgeInsets.all(50),
-                          maxZoom: 15,        
+                          maxZoom: 15,      
+                          zoomToBoundsOnClick: false,  
+                          spiderfyCluster: false,
                           markers: createMarkers(res.trees),
                           builder: (context, markers) {
                             return Container(
@@ -90,6 +94,20 @@ class _MapState extends State<Map> {
                                 ),
                               ),
                             );
+                          },
+                          onClusterTap: (cluster) {
+                            final points = cluster.markers.map((marker) => marker.point).toList();
+                            double sumLat = 0;
+                            double sumLng = 0;
+                            for (var point in points) {
+                            sumLat += point.latitude;
+                            sumLng += point.longitude;
+                            }
+                            final centerLat = sumLat / points.length;
+                            final centerLng = sumLng / points.length;
+                            final center = LatLng(centerLat, centerLng);
+                            previousLocation = center;
+                            mapController.move(center, 18);
                           },
                         ),
                       ),
