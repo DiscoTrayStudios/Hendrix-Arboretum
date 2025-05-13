@@ -144,6 +144,7 @@ class _MapState extends State<Map> {
                                         });
                                         if (specialty != null) {
                                           specialtyTrees(specialty);
+
                                         } else {
                                           clearMarkers();
                                         }
@@ -152,7 +153,7 @@ class _MapState extends State<Map> {
                                          if (query.isEmpty) {
                                           clearMarkers();
                                         } else {
-                                          search(query);
+                                          search(query,selectedSpecialty== null);
                                         }
                                       },
                                     ),
@@ -281,7 +282,7 @@ class _MapState extends State<Map> {
         .toList();
   }
 
-  Future<void> search(String text) async {
+  Future<void> search(String text, bool speciallyPicked) async {
     if (text.isEmpty) {
       clearMarkers();
       return;
@@ -299,7 +300,7 @@ class _MapState extends State<Map> {
         }
 
         populateMap([tree], zoom: 18);
-      } else {
+      } else  if(speciallyPicked){
         List<Tree> science = await fetchTreesBySpecies(false, text);
         List<Tree> common = await fetchTreesBySpecies(true, text);
 

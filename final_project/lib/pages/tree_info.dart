@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/api/tree.dart';
 import 'package:final_project/app_state.dart';
+import 'package:final_project/plaque_widget.dart';
 import 'package:final_project/widgets/note_widgets.dart';
 import 'package:final_project/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +17,7 @@ import 'package:safe_text/safe_text.dart';
 import 'package:final_project/objects/comment.dart';
 import 'package:final_project/widgets/comment_widgets.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:final_project/main.dart';
 
 class TreeInfo extends StatefulWidget {
   TreeInfo({super.key, required this.treeid, commonname});
@@ -26,7 +28,6 @@ class TreeInfo extends StatefulWidget {
   @override
   State<TreeInfo> createState() => _TreeInfoState();
 }
-
 /*FutureBuilder<Tree>(
   future: fetchTree,
   builder: (context, snapshot) {
@@ -40,15 +41,11 @@ class _TreeInfoState extends State<TreeInfo> {
   late Future<Tree?> futureTree;
   var appState;
   late Future<String> imageString;
-  late String finalImage= "";
   @override
   void initState(){
     super.initState();
     futureTree = fetchTree(widget.treeid);
     appState = context.read<ApplicationState>();
-   _getImageURL(widget.treeid).then((result){
-    finalImage = result;
-   });
     
     //widget.cmts = appState.loadComments(widget.treeid);
     //appState.loadComments(widget.treeid);
@@ -275,6 +272,10 @@ class _TreeInfoState extends State<TreeInfo> {
                             'https://plants.ces.ncsu.edu/find_a_plant/common-name/?q=${widget.commonname}'))
                       },
                   child: Text('More Info'))),
+                   TreePlaqueWidget(
+        treeId: widget.treeid,
+        plaqueId: 5,
+      ),
                   Consumer<ApplicationState>(
   builder: (context, appState, _) => 
     appState.loggedIn 
@@ -304,9 +305,5 @@ class _TreeInfoState extends State<TreeInfo> {
     if (!await launchUrl(url)) {
       throw Exception('Could not launch $url');
     }
-  }
-  Future<String> _getImageURL(int id) async{
-    Future<String> imageString = appState.getImage(widget.treeid);
-    return imageString;
   }
 }
