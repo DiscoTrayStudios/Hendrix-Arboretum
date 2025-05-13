@@ -26,8 +26,7 @@ class Tree {
       required this.imageURL,
       required this.commonName,
       required this.height,
-      required this.dbh,
-     });
+      required this.dbh});
 
   factory Tree.fromJson(Map<String, dynamic> json) {
     return switch (json) {

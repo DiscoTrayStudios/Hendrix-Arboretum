@@ -296,7 +296,7 @@ class _SearchDropdownState extends State<SearchDropdown> {
         controller: _controller,
         style: TextStyle(color: Colors.white),
         decoration: InputDecoration(
-          hintText: "Select or Search by ID or Name",
+          hintText: "Select or Search ID",
           hintStyle: Theme.of(context).textTheme.labelLarge,
           suffixIcon: GestureDetector(
             onTap: _toggleDropdown,
